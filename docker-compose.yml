@@ -1,0 +1,45 @@
+version: "3.6"
+
+services: 
+  nginx:
+    build: ./nginx
+    restart: always
+    volumes:
+      - ./nginx:/etc/nginx/conf.d/
+    ports:
+      - 8080:80
+    depends_on: 
+      - app
+    links: 
+      - app
+  
+  mysql:
+    image: mysql:5.7.32
+    restart: always
+    command: --innodb-use-native-aio=0
+    ports: 
+      - 3306:3306
+    tty: true
+    volumes:
+      - ./mysql:/var/lib/mysql
+    environment: 
+      - MYSQL_DATABASE=people
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_USER=root
+
+  app:
+    build: ./node
+    working_dir: /usr/src/app
+    command: dockerize -wait tcp://mysql:3306 -timeout 20s npm run start
+    restart: always
+    container_name: app
+    volumes: 
+      - ./node:/usr/src/app
+    ports:
+      - 3000:3000
+    links:
+      - mysql
+    depends_on: 
+      - mysql   
+
+  

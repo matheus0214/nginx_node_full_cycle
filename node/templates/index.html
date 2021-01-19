@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <style>
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        h1 {
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        ul {
+            list-style: none;
+        }
+        input[type="text"] {
+            height: 24px;
+            font-size: 16px;
+        }
+        input[type="submit"] {
+            height: 24px;
+            font-size: 16px;
+        }
+        li {
+            font-size: 26px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Full Cycle Rocks!!</h1>
+
+        <form method="post" id="form">
+            <input type="text" id="user-name" placeholder="Informe seu nome*">
+            <input type="button" onClick="addItem(); return false;" value="Enviar">
+        </form>
+
+        <ul id="list-users">
+        </ul>
+    </div>
+</body>
+<script>
+    fetch("/users", {
+        method: "GET",
+        headers: {
+            'Content-Type': 'application/json'
+        },        
+    })
+    .then(response => {
+        response.json().then(r => {
+            const list = document.getElementById("list-users");
+            
+            for(let i = 0; i < r.length; i++) {
+                var element = document.createElement("li");
+                element.textContent = r[i].name || "";
+                list.appendChild(element);
+            }
+        })
+    });
+    
+    function addItem() {
+        fetch("/register", {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                name: document.getElementById("user-name").value,
+            })            
+        })
+        .then(response => {
+            const list = document.getElementById("list-users");
+            
+            var element = document.createElement("li");
+            element.textContent = document.getElementById("user-name").value || "";
+            list.appendChild(element);
+
+            document.getElementById("user-name").value = "";
+        });
+    }
+</script>
+</html>
